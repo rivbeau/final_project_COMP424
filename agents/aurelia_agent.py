@@ -128,18 +128,6 @@ class AureliaAgent(Agent):
     move = move[1]
     time_taken = time.time() - start_time
     #print("My AI's turn took ", time_taken, "seconds.")
-    '''legal_moves = self.get_valid_unique_moves(chess_board, player)
-    if not legal_moves:
-        return None  # No valid moves available, pass turn
-    best_move = None
-    best_score = float('-inf')
 
-    for move in legal_moves:
-        simulated_board = deepcopy(chess_board)
-        execute_move(simulated_board, move, player)
-        move_score = self.alpha_beta(simulated_board, 1, float('-inf'), float('inf'), False, player, opponent)
-        if move_score > best_score:
-            best_score = move_score
-            best_move = move'''
     return move
 
