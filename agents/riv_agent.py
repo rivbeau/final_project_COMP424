@@ -49,7 +49,7 @@ class RivAgent(Agent):
           return valid_moves[0]
       
       # Fixed search depth
-      max_depth = 6
+      max_depth = 3
       
       # Find best move using alpha-beta
       best_move = valid_moves[0]  
@@ -67,7 +67,7 @@ class RivAgent(Agent):
         execute_move(new_board, move, player)
         
         # Get score for this move
-        score = self.min_value(new_board, alpha, beta, 1, max_depth, start_time)
+        score = self.min_value(new_board, alpha, beta, 2, start_time)
         
         if score > best_score:
             best_score = score
@@ -80,7 +80,7 @@ class RivAgent(Agent):
       
       return best_move
 
-  def max_value(self, chess_board, alpha, beta, current_depth, max_depth, start_time):
+  def max_value(self, chess_board, alpha, beta, depth, start_time):
       """
       Maximizing player's turn in alpha-beta search.
       """
@@ -90,7 +90,7 @@ class RivAgent(Agent):
       
       # Check if terminal state or max depth reached
       is_end, p1_score, p2_score = check_endgame(chess_board)
-      if is_end or current_depth >= max_depth:
+      if is_end or depth == 0:
         return self.evaluate_board(chess_board, p1_score, p2_score, self.player, self.opponent)
       
       # Get valid moves for current player
@@ -98,7 +98,7 @@ class RivAgent(Agent):
       
       # No valid moves - pass turn to opponent
       if not valid_moves:
-        return self.min_value(chess_board, alpha, beta, current_depth + 1, max_depth, start_time)
+        return self.min_value(chess_board, alpha, beta, depth -1, start_time)
       
       v = -float('inf')
       
@@ -110,7 +110,7 @@ class RivAgent(Agent):
         new_board = deepcopy(chess_board)
         execute_move(new_board, move, self.player)
         
-        v = max(v, self.min_value(new_board, alpha, beta, current_depth + 1, max_depth, start_time))
+        v = max(v, self.min_value(new_board, alpha, beta, depth -1, start_time))
         
         # Alpha-beta pruning
         if v >= beta:
@@ -119,7 +119,7 @@ class RivAgent(Agent):
       
       return v
 
-  def min_value(self, chess_board, alpha, beta, current_depth, max_depth, start_time):
+  def min_value(self, chess_board, alpha, beta, depth, start_time):
       """
       Minimizing player's turn in alpha-beta search.
       """
@@ -129,7 +129,7 @@ class RivAgent(Agent):
       
       # Check if terminal state or max depth reached
       is_end, p1_score, p2_score = check_endgame(chess_board)
-      if is_end or current_depth >= max_depth:
+      if is_end or depth == 0:
         return self.evaluate_board(chess_board, p1_score, p2_score, self.player, self.opponent)
       
       # Get valid moves for opponent
@@ -137,7 +137,7 @@ class RivAgent(Agent):
       
       # No valid moves - pass turn to current player
       if not valid_moves:
-        return self.max_value(chess_board, alpha, beta, current_depth + 1, max_depth, start_time)
+        return self.max_value(chess_board, alpha, beta, depth -1, start_time)
       
       v = float('inf')
       
@@ -149,7 +149,7 @@ class RivAgent(Agent):
         new_board = deepcopy(chess_board)
         execute_move(new_board, move, self.opponent)
         
-        v = min(v, self.max_value(new_board, alpha, beta, current_depth + 1, max_depth, start_time))
+        v = min(v, self.max_value(new_board, alpha, beta, depth -1, start_time))
         
         # Alpha-beta pruning
         if v <= alpha:
@@ -159,15 +159,11 @@ class RivAgent(Agent):
       return v
 
   def evaluate_board(self, board,p1_score, p2_score, color, opponent):
-    my_pieces = p1_score
-    opp_pieces = p2_score
-
-    piece_diff = my_pieces - opp_pieces
-
-    corners = [(0, 0), (0, board.shape[1]-1), (board.shape[0]-1, 0), (board.shape[0]-1, board.shape[1]-1)]
-    corner_control = sum(1 for r, c in corners if board[r, c] == color) - sum(1 for r, c in corners if board[r, c] == opponent)
-
-    my_mobility = len(self.get_valid_unique_moves(board, color))
-    opp_mobility = len(self.get_valid_unique_moves(board, opponent))
-    mobility_diff = my_mobility - opp_mobility
-    return piece_diff + mobility_diff
+    if self.player == 1:
+        my_score = p1_score
+        opp_score = p2_score
+    else:
+        my_score = p2_score
+        opp_score = p1_score
+    piece_diff = my_score - opp_score
+    return piece_diff
