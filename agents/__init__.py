@@ -4,3 +4,4 @@ from .student_agent import StudentAgent
 from .greedy_corners_agent import StudentAgent
 from .aurelia_agent import AureliaAgent
 from .reda_agent import RedaAgent
+from .riv_agent import RivAgent
