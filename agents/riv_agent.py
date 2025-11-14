@@ -130,7 +130,8 @@ class RivAgent(Agent):
       # Check if terminal state or max depth reached
       is_end, p1_score, p2_score = check_endgame(chess_board)
       if is_end or depth == 0:
-        return self.evaluate_board(chess_board, p1_score, p2_score, self.player, self.opponent)
+        result = self.evaluate_board(chess_board, p1_score, p2_score, self.player, self.opponent)
+        return result
       
       # Get valid moves for opponent
       valid_moves = get_valid_moves(chess_board, self.opponent)
@@ -165,5 +166,44 @@ class RivAgent(Agent):
     else:
         my_score = p2_score
         opp_score = p1_score
+    if my_score == 0: 
+        return -float('inf')
+    if opp_score == 0:
+        return float('inf')
     piece_diff = my_score - opp_score
-    return piece_diff
+    
+    edges = [(0,c) for c in range(board.shape[1])] + \
+        [(board.shape[0]-1,c) for c in range(board.shape[1])] + \
+        [(r,0) for r in range(board.shape[0])] + \
+        [(r,board.shape[1]-1) for r in range(board.shape[0])]
+
+    edge_control = sum(1 for r,c in edges if board[r,c] == color) - sum(1 for r,c in edges if board[r,c] == opponent)
+    
+    # Count opponent pieces adjacent to your pieces
+    adj_block = 0
+    for r in range(board.shape[0]):
+        for c in range(board.shape[1]):
+            if board[r,c] == color:
+                for dr in [-1,0,1]:
+                    for dc in [-1,0,1]:
+                        nr, nc = r+dr, c+dc
+                        if 0 <= nr < board.shape[0] and 0 <= nc < board.shape[1]:
+                            if board[nr,nc] == opponent:
+                                adj_block += 1
+
+    
+    centrality_bonus = 0
+    size = board.shape[0]
+    center = (size) // 2
+    
+    for r in range(size):
+        for c in range(size):
+            if board[r,c] == color:
+                dist = abs(r - center) + abs(c - center)
+                centrality_bonus += (10 - dist)
+            elif board[r,c] == opponent:
+                dist = abs(r - center) + abs(c - center)
+                centrality_bonus -= (10 - dist)
+
+    
+    return piece_diff + 0.25*edge_control + adj_block + 0.4*centrality_bonus
