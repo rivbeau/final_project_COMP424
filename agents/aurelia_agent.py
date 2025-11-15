@@ -69,7 +69,7 @@ class AureliaAgent(Agent):
                   best_move = None
                   for move in moves:
                       time_taken = time.time() - start_time
-                      if move not in moves_seen and time_taken < 1.95:
+                      if move not in moves_seen and time_taken < 2:
                         new = deepcopy(board)
                         moves_seen.add(move)
                         execute_move(new, move, color)
@@ -90,7 +90,7 @@ class AureliaAgent(Agent):
                   best_move = None
                   for move in moves:
                       time_taken = time.time() - start_time
-                      if move not in moves_seen and time_taken < 1.95:
+                      if move not in moves_seen and time_taken < 2:
                         new = deepcopy(board)
                         moves_seen.add(move)
                         execute_move(new, move, opponent)
