@@ -51,7 +51,7 @@ class AureliaAgent(Agent):
               return score_diff + corner_bonus + mobility_penalty
 
 
-  def a_b(self, board, depth, alpha, beta, max_player, color, opponent):
+  def a_b(self, board, depth, alpha, beta, max_player, color, opponent, start_time):
           """
           Algorithm done w/ help from geeks4geeks' page about minimax & a-b pruning (I am lazy)
           Except g4g uses minimax in the recursive step instead for like no reason when they could just call a_b again
@@ -59,6 +59,7 @@ class AureliaAgent(Agent):
           """
           #get possibilities for current player
           moves = get_valid_moves(board, color if max_player else opponent)
+          moves_seen = set()
           #we reached the bottom
           if depth < 1 or not moves:
               return self.evaluate_board(board, color, opponent)
@@ -67,17 +68,20 @@ class AureliaAgent(Agent):
                   max_eval = float('-inf')
                   best_move = None
                   for move in moves:
-                      new = deepcopy(board)
-                      execute_move(new, move, color)
-                      value = self.a_b(new, depth - 1, alpha, beta, False, color, opponent)
-                      #print(value)
-                      if isinstance(value, tuple):
+                      time_taken = time.time() - start_time
+                      if move not in moves_seen and time_taken < 1.95:
+                        new = deepcopy(board)
+                        moves_seen.add(move)
+                        execute_move(new, move, color)
+                        value = self.a_b(new, depth - 1, alpha, beta, False, color, opponent, start_time)
+                        #print(value)
+                        if isinstance(value, tuple):
                           value = value[0]
-                      if value > max_eval:
+                        if value > max_eval:
                           max_eval = value
                           best_move = move
-                      alpha = max(alpha, value)
-                      if beta <= alpha:
+                        alpha = max(alpha, value)
+                        if beta <= alpha:
                           break
                   return (max_eval, best_move)
 
@@ -85,18 +89,21 @@ class AureliaAgent(Agent):
                   min_eval = float('inf')
                   best_move = None
                   for move in moves:
-                      new = deepcopy(board)
-                      execute_move(new, move, opponent)
-                      value = self.a_b(new, depth - 1, alpha, beta, True, color, opponent)
-                      #print(value)
-                      if isinstance(value, tuple):
+                      time_taken = time.time() - start_time
+                      if move not in moves_seen and time_taken < 1.95:
+                        new = deepcopy(board)
+                        moves_seen.add(move)
+                        execute_move(new, move, opponent)
+                        value = self.a_b(new, depth - 1, alpha, beta, True, color, opponent, start_time)
+                        #print(value)
+                        if isinstance(value, tuple):
                           value = value[0]
 
-                      if value < min_eval:
+                        if value < min_eval:
                           min_eval = value
                           best_move = move
-                      beta = min(beta, value)
-                      if beta <= alpha:
+                        beta = min(beta, value)
+                        if beta <= alpha:
                           break
                   return (min_eval, best_move)
 
@@ -122,9 +129,13 @@ class AureliaAgent(Agent):
     # time_taken during your search and breaking with the best answer
     # so far when it nears 2 seconds.
     start_time = time.time()
-    move = None
     valid_moves = get_valid_moves(chess_board, player)
-    move = self.a_b(chess_board, 2, float('-inf'), float('inf'), True, player, opponent)
+    time_taken = time.time() - start_time
+    i = 2
+    while time_taken < 2 and i < 5:
+        time_taken = time.time() - start_time
+        move = self.a_b(chess_board, i, float('-inf'), float('inf'), True, player, opponent, start_time)
+        time_taken = time.time() - start_time
     move = move[1]
     time_taken = time.time() - start_time
     #print("My AI's turn took ", time_taken, "seconds.")
