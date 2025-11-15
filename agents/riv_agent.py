@@ -49,7 +49,7 @@ class RivAgent(Agent):
           return valid_moves[0]
       
       # Fixed search depth
-      max_depth = 3
+      max_depth = 3 # useless for now (just for reference)
       
       # Find best move using alpha-beta
       best_move = valid_moves[0]  
