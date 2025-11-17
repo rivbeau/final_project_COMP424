@@ -20,6 +20,8 @@ class World:
     def __init__(
         self,
         player_1="random_agent",
+        weights1=None,
+        weights2=None,
         player_2="random_agent",
         board_fpath=None,
         display_ui=False,
@@ -67,9 +69,13 @@ class World:
         p0_agent = AGENT_REGISTRY[player_1]
         p1_agent = AGENT_REGISTRY[player_2]
         logger.info(f"Registering p0 agent : {player_1}")
-        self.p0 = p0_agent()
+        if weights1:
+            self.p0 = p0_agent(weights_list=weights1)
+        # self.p0 = p0_agent()
         logger.info(f"Registering p1 agent : {player_2}")
-        self.p1 = p1_agent()
+        if weights2:
+            self.p1 = p1_agent(weights_list=weights2)
+        # self.p1 = p1_agent()
 
         # check autoplay
         if autoplay:

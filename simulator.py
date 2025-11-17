@@ -14,7 +14,9 @@ logger = logging.getLogger(__name__)
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--player_1", type=str, default="random_agent")
+    parser.add_argument("--weights1", type=str, default=None)
     parser.add_argument("--player_2", type=str, default="random_agent")
+    parser.add_argument("--weights2", type=str, default=None)
     parser.add_argument("--board_path", type=str, default=None)
     parser.add_argument(
         "--board_roster_dir",
@@ -41,20 +43,39 @@ class Simulator:
     args : argparse.Namespace
     """
 
-    def __init__(self, args):
-        self.args = args
+    def __init__(self, 
+    player_1="random_agent",
+    player_2="random_agent",
+    weights1=[1,0,0,0,0],
+    weights2=[0,0,0,0,0],
+    board_path=None,
+    board_roster_dir='boards/',
+    display=False,
+    display_delay=0.4,
+    display_save=False,
+    display_save_path="plots/",
+    autoplay=False,
+    autoplay_runs=100):
+        self.player_1 = player_1
+        self.player_2 = player_2
+        self.weights1 = weights1 
+        self.weights2 = weights2
+        self.board_path = board_path
+        self.board_roster_dir = board_roster_dir
+        self.display = display
+        self.display_delay = display_delay
+        self.display_save = display_save
+        self.display_save_path = display_save_path
+        self.autoplay = autoplay
+        self.autoplay_runs = autoplay_runs
 
         # if board_roster_dir was passed, add all file paths inside it to a list and save here
-        if hasattr(self.args, "board_roster_dir") and self.args.board_roster_dir:
-            roster_dir = self.args.board_roster_dir
-            if isinstance(roster_dir, str) and os.path.isdir(roster_dir):
-                self.board_options = [
-                    os.path.join(roster_dir, fname)
-                    for fname in os.listdir(roster_dir)
-                    if fname.endswith(".csv") or fname.endswith(".board")
-                ]
-            else:
-                self.board_options = [] # TODO: Or should these be None?
+        if isinstance(self.board_roster_dir, str) and os.path.isdir(self.board_roster_dir):
+            self.board_options = [
+                os.path.join(self.board_roster_dir, fname)
+                for fname in os.listdir(self.board_roster_dir)
+                if fname.endswith(".csv") or fname.endswith(".board")
+            ]
         else:
             self.board_options = []
 
@@ -70,21 +91,23 @@ class Simulator:
             if not None, set the board to the layout in the file stored at board_fpath
         """
         if board_fpath is None:
-            board_fpath = self.args.board_path
+            board_fpath = self.board_path
         if swap_players:
-            player_1, player_2 = self.args.player_2, self.args.player_1
+            player_1, player_2 = self.player_2, self.player_1
         else:
-            player_1, player_2 = self.args.player_1, self.args.player_2
+            player_1, player_2 = self.player_1, self.player_2
 
         self.world = World(
             player_1=player_1,
+            weights1=self.weights1,
+            weights2=self.weights2,
             player_2=player_2,
             board_fpath=board_fpath,
-            display_ui=self.args.display,
-            display_delay=self.args.display_delay,
-            display_save=self.args.display_save,
-            display_save_path=self.args.display_save_path,
-            autoplay=self.args.autoplay,
+            display_ui=self.display,
+            display_delay=self.display_delay,
+            display_save=self.display_save,
+            display_save_path=self.display_save_path,
+            autoplay=self.autoplay,
         )
 
     def run(self, swap_players=False, board_fpath=None):
@@ -93,11 +116,11 @@ class Simulator:
         while not is_end:
             is_end, p0_score, p1_score = self.world.step()
         logger.info(
-            f"Run finished. {PLAYER_1_NAME} player, agent {self.args.player_1}: {p0_score}. {PLAYER_2_NAME}, agent {self.args.player_2}: {p1_score}"
+            f"Run finished. {PLAYER_1_NAME} player, agent {self.player_1}: {p0_score}. {PLAYER_2_NAME}, agent {self.player_2}: {p1_score}"
         )
         return p0_score, p1_score, self.world.p0_time, self.world.p1_time
 
-    def autoplay(self):
+    def run_autoplay(self):
         """
         Run multiple simulations of the gameplay and aggregate win %
         """
@@ -105,11 +128,11 @@ class Simulator:
         p2_win_count = 0
         p1_times = []
         p2_times = []
-        if self.args.display:
+        if self.display:
             logger.warning("Since running autoplay mode, display will be disabled")
-        self.args.display = False
+        self.display = False
         with all_logging_disabled():
-            for i in range(self.args.autoplay_runs):
+            for i in range(self.autoplay_runs):
                 swap_players = i % 2 == 0
                 board_fpath = self.board_options[ np.random.randint(len(self.board_options)) ] 
                 p0_score, p1_score, p0_time, p1_time = self.run(
@@ -133,11 +156,12 @@ class Simulator:
                 p2_times.extend(p1_time)
 
         logger.info(
-            f"Player 1, agent {self.args.player_1}, win percentage: {p1_win_count / self.args.autoplay_runs}. Maximum turn time was {np.round(np.max(p1_times),5)} seconds."
+            f"Player 1, agent {self.player_1}, win percentage: {p1_win_count / self.autoplay_runs}. Maximum turn time was {np.round(np.max(p1_times),5)} seconds."
         )
-        logger.info(
-            f"Player 2, agent {self.args.player_2}, win percentage: {p2_win_count / self.args.autoplay_runs}. Maximum turn time was {np.round(np.max(p2_times),5)} seconds."
-        )
+        # logger.info(
+        #     f"Player 2, agent {self.player_2}, win percentage: {p2_win_count / self.autoplay_runs}. Maximum turn time was {np.round(np.max(p2_times),5)} seconds."
+        # )
+        return p1_win_count / self.autoplay_runs
 
         """
         The code in this comment will be part of the book-keeping that we use to score the end-of-term tournament. FYI. 
@@ -154,14 +178,11 @@ class Simulator:
         with open(fname, "w") as fo:
             fo.write(f"P1Name,P2Name,NumRuns,P1WinPercent,P2WinPercent,P1RunTime,P2RunTime\n")
             fo.write(
-                f"{self.world.player_1_name},{self.world.player_2_name},{self.args.autoplay_runs},{p1_win_count / self.args.autoplay_runs},{p2_win_count / self.args.autoplay_runs},{np.round(np.max(p1_times),5)},{np.round(np.max(p2_times),5)}\n"
+                f"{self.world.player_1_name},{self.world.player_2_name},{self.autoplay_runs},{p1_win_count / self.autoplay_runs},{p2_win_count / self.autoplay_runs},{np.round(np.max(p1_times),5)},{np.round(np.max(p2_times),5)}\n"
             )
         """
 
-if __name__ == "__main__":
-    args = get_args()
-    simulator = Simulator(args)
-    if args.autoplay:
-        simulator.autoplay()
-    else:
-        simulator.run()
+# if __name__ == "__main__":
+#     # args = get_args()
+#     simulator = Simulator()
+#     simulator.autoplay()

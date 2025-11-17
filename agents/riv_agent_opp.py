@@ -8,22 +8,20 @@ from copy import deepcopy
 import time
 from helpers import random_move, execute_move, check_endgame, get_valid_moves
 
-@register_agent("riv_agent")
-class RivAgent(Agent):
+@register_agent("riv_agent_opp")
+class RivAgentOpp(Agent):
   """
   A class for your implementation. Feel free to use this class to
   add any helper functionalities needed for your agent
   """
 
   def __init__(self, weights_list=None):
-    super(RivAgent, self).__init__()
-    self.name = "RivAgent"
+    super(RivAgentOpp, self).__init__()
+    self.name = "RivAgentOpp"
     self.time_limit = 1.99  # max time per move
     self.memo = {} # memoization table
-
     if weights_list is not None:
       weights = weights_list
-      
     self.set_weights(weights)
 
   def get_board_hash(self, chess_board):
@@ -109,7 +107,7 @@ class RivAgent(Agent):
 
     Please check the sample implementation in agents/random_agent.py or agents/human_agent.py for more details.
     """
-    print(self.w_adj, self.w_cent, self.w_edge, self.w_piece, self.w_risk)
+    
     start_time = time.time()
     self.player = player
     self.opponent = opponent
@@ -157,7 +155,7 @@ class RivAgent(Agent):
       alpha = max(alpha, best_score)
     
     time_taken = time.time() - self.start_time
-    # print(f"My agent's turn took {time_taken:.3f} seconds.")
+    #print(f"My agent's turn took {time_taken:.3f} seconds.")
     
     return best_move
 
