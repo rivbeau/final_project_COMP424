@@ -126,8 +126,6 @@ class Simulator:
         """
         p1_win_count = 0
         p2_win_count = 0
-        p1_times = []
-        p2_times = []
         if self.display:
             logger.warning("Since running autoplay mode, display will be disabled")
         self.display = False
@@ -152,16 +150,14 @@ class Simulator:
                 else:  # Tie
                     p1_win_count += 0.5
                     p2_win_count += 0.5
-                p1_times.extend(p0_time)
-                p2_times.extend(p1_time)
 
         logger.info(
-            f"Player 1, agent {self.player_1}, win percentage: {p1_win_count / self.autoplay_runs}. Maximum turn time was {np.round(np.max(p1_times),5)} seconds."
+            f"Player 1, agent {self.player_1}, win percentage: {p1_win_count / self.autoplay_runs}."
         )
         # logger.info(
         #     f"Player 2, agent {self.player_2}, win percentage: {p2_win_count / self.autoplay_runs}. Maximum turn time was {np.round(np.max(p2_times),5)} seconds."
         # )
-        return p1_win_count / self.autoplay_runs
+        return p2_win_count 
 
         """
         The code in this comment will be part of the book-keeping that we use to score the end-of-term tournament. FYI. 

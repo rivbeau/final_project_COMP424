@@ -42,10 +42,12 @@ def run_game(idx,w1, w2):
     
     sim = Simulator(
         player_1="riv_agent",
-        player_2="riv_agent_opp",
+        player_2="riv_agent",
         weights1=w1,
         weights2=w2,
-        autoplay=True,
+        autoplay=False,
+        display=True,
+        display_delay=2,
         autoplay_runs=10,
     )
     

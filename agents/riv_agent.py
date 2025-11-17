@@ -21,10 +21,10 @@ class RivAgent(Agent):
     self.time_limit = 1.99  # max time per move
     self.memo = {} # memoization table
 
-    if weights_list is not None:
-      weights = weights_list
+    if weights_list is None:
+      weights_list = [0,0,0,0,0]
       
-    self.set_weights(weights)
+    self.set_weights(weights_list)
 
   def get_board_hash(self, chess_board):
     """
@@ -329,15 +329,15 @@ class RivAgent(Agent):
     if my_percentage < 0.25:
       # Penalty scales from 0 to -10 as percentage drops from 25% to 0%
       danger_scale = (0.25 - my_percentage) / 0.25  # 0.0 to 1.0
-      danger_penalty = -10 * danger_scale
+      danger_penalty = -1 * danger_scale
       risk = danger_penalty
     
     # Strong advantage: > 75% of discs
     if my_percentage > 0.75:
       # Bonus scales from 0 to +10 as percentage rises from 75% to 100%
       advantage_scale = (my_percentage - 0.75) / 0.25  # 0.0 to 1.0
-      advantage_bonus = 10 * advantage_scale
+      advantage_bonus = 1 * advantage_scale
       risk = advantage_bonus
       
     
-    return self.w_piece * piece_diff + self.w_edge *edge_control + self.w_adj * adj_block + self.w_cent * centrality_bonus + self.w_risk * risk
+    return self.w_piece * piece_diff /49 + self.w_edge *edge_control / 24 + self.w_adj * adj_block /32 + self.w_cent * centrality_bonus /32 + self.w_risk * risk / 10
