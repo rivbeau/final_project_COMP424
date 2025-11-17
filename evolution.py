@@ -46,9 +46,9 @@ def run_game(idx,w1, w2):
         weights1=w1,
         weights2=w2,
         autoplay=False,
-        display=True,
+        display=False,
         display_delay=2,
-        autoplay_runs=10,
+        autoplay_runs=5,
     )
     
     win_p1 = sim.run_autoplay()
@@ -139,13 +139,9 @@ def simulate(G: int, N: int) -> List[Individual]:
 
 
 def main():
-    print(run_game(0, [1,0,0,0,0], [0,0,0,0,0]))
-    
-    
-    
-    # best_pop = simulate(20, 20)
-    # print("it finished")
-    # print("best ind", best_pop[0])
+    best_pop = simulate(20, 20)
+    print("it finished")
+    print("best ind", best_pop[0])
 
 
 if __name__ == "__main__":

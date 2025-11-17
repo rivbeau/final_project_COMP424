@@ -109,7 +109,6 @@ class RivAgent(Agent):
 
     Please check the sample implementation in agents/random_agent.py or agents/human_agent.py for more details.
     """
-    print(self.w_adj, self.w_cent, self.w_edge, self.w_piece, self.w_risk)
     start_time = time.time()
     self.player = player
     self.opponent = opponent

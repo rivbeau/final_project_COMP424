@@ -93,14 +93,14 @@ class Simulator:
         if board_fpath is None:
             board_fpath = self.board_path
         if swap_players:
-            player_1, player_2 = self.player_2, self.player_1
+            player_1, weights1, player_2, weights2 = self.player_2, self.weights2, self.player_1, self.weights1
         else:
-            player_1, player_2 = self.player_1, self.player_2
+            player_1, weights1, player_2, weights2 = self.player_1, self.weights1, self.player_2, self.weights2
 
         self.world = World(
             player_1=player_1,
-            weights1=self.weights1,
-            weights2=self.weights2,
+            weights1=weights1,
+            weights2=weights2,
             player_2=player_2,
             board_fpath=board_fpath,
             display_ui=self.display,
@@ -157,7 +157,7 @@ class Simulator:
         # logger.info(
         #     f"Player 2, agent {self.player_2}, win percentage: {p2_win_count / self.autoplay_runs}. Maximum turn time was {np.round(np.max(p2_times),5)} seconds."
         # )
-        return p2_win_count 
+        return p1_win_count 
 
         """
         The code in this comment will be part of the book-keeping that we use to score the end-of-term tournament. FYI. 
