@@ -17,7 +17,7 @@ class RivAgent(Agent):
   def __init__(self):
     super(RivAgent, self).__init__()
     self.name = "RivAgent"
-    self.time_limit = 2.0  # seconds per move
+    self.time_limit = 1.99  # seconds per move
 
   def step(self, chess_board, player, opponent):
       """
@@ -172,6 +172,7 @@ class RivAgent(Agent):
         return float('inf')
     piece_diff = my_score - opp_score
     
+    
     edges = [(0,c) for c in range(board.shape[1])] + \
         [(board.shape[0]-1,c) for c in range(board.shape[1])] + \
         [(r,0) for r in range(board.shape[0])] + \
@@ -204,6 +205,26 @@ class RivAgent(Agent):
             elif board[r,c] == opponent:
                 dist = abs(r - center) + abs(c - center)
                 centrality_bonus -= (10 - dist)
-
+                
+                
+    # Don't Lose heuristic using percentages
+    total_discs = my_score + opp_score
+    my_percentage = my_score / total_discs
     
-    return piece_diff + 0.25*edge_control + adj_block + 0.4*centrality_bonus
+    # Critical danger: < 25% of discs
+    risk = 0
+    if my_percentage < 0.25:
+      # Penalty scales from 0 to -10 as percentage drops from 25% to 0%
+      danger_scale = (0.25 - my_percentage) / 0.25  # 0.0 to 1.0
+      danger_penalty = -1 * danger_scale
+      risk = danger_penalty
+    
+    # Strong advantage: > 75% of discs
+    if my_percentage > 0.75:
+      # Bonus scales from 0 to +10 as percentage rises from 75% to 100%
+      advantage_scale = (my_percentage - 0.75) / 0.25  # 0.0 to 1.0
+      advantage_bonus = 1 * advantage_scale
+      risk = advantage_bonus
+      
+    
+    return 0.03 * piece_diff /49 + 0.8935 *edge_control / 24 + -0.09 * adj_block /32 + 0.759 * centrality_bonus /32 + 0.612 * risk / 10
