@@ -38,7 +38,7 @@ def write_weights(weights, idx, suffix): # only works with "" and "_opp"
         
     return name
     
-def run_game(idx,w1, w2):
+def run_game(idx,w1, w2, N):
     
     sim = Simulator(
         player_1="riv_agent",
@@ -47,8 +47,8 @@ def run_game(idx,w1, w2):
         weights2=w2,
         autoplay=False,
         display=False,
-        display_delay=2,
-        autoplay_runs=5,
+        display_delay=2, 
+        autoplay_runs=N,
     )
     
     win_p1 = sim.run_autoplay()
@@ -75,9 +75,9 @@ def fitness_parallel(pop: List[Individual], opponents_per_ind=3) -> List[float]:
         for i, weights in enumerate(pop):
             opponents = random.sample(pop, opponents_per_ind)
             for opp in opponents:
-                jobs.append(executor.submit(run_game, i, weights, opp))
+                jobs.append(executor.submit(run_game, i, weights, opp, 5))
                 
-            jobs.append(executor.submit(run_game,i, weights, [1,0,0,0,0]))
+            jobs.append(executor.submit(run_game, i, weights, [1,0,0,0,0], 10))
             
         for future in as_completed(jobs):
             idx, result = future.result()
