@@ -339,4 +339,4 @@ class RivAgent(Agent):
       risk = advantage_bonus
       
     
-    return self.w_piece * piece_diff /49 + self.w_edge *edge_control / 24 + self.w_adj * adj_block /32 + self.w_cent * centrality_bonus /32 + self.w_risk * risk / 10
+    return self.w_piece * piece_diff + self.w_edge *edge_control+ self.w_adj * adj_block + self.w_cent * centrality_bonus + self.w_risk * risk

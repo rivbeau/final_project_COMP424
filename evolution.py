@@ -52,7 +52,9 @@ def run_game(idx,w1, w2, N):
     )
     
     win_p1 = sim.run_autoplay()
-        
+    print(win_p1)
+    if win_p1 >= N -2:
+        print(f"Perfect win against REDA agent: {w1}")
     return idx, win_p1
     # f1_path = write_weights(w1,idx, "")
     # f2_path = write_weights(w2,idx, "opp")
@@ -73,9 +75,9 @@ def fitness_parallel(pop: List[Individual], opponents_per_ind=3) -> List[float]:
     jobs = []
     with ProcessPoolExecutor() as executor:
         for i, weights in enumerate(pop):
-            opponents = random.sample(pop, opponents_per_ind)
-            for opp in opponents:
-                jobs.append(executor.submit(run_game, i, weights, opp, 5))
+            # opponents = random.sample(pop, opponents_per_ind)
+            # for opp in opponents:
+            #     jobs.append(executor.submit(run_game, i, weights, opp, 5))
                 
             jobs.append(executor.submit(run_game, i, weights, [1,0,0,0,0], 10))
             
@@ -94,8 +96,9 @@ def fitness_parallel(pop: List[Individual], opponents_per_ind=3) -> List[float]:
     #     fitness.append(wins)
     # return fitness
 
-def tournament_select(pop, fits, k=4):
-    cand = random.sample(list(range(20)), k)
+def tournament_select(pop, fits, k=3):
+    n = len(pop)
+    cand = random.sample(list(range(n)), k)
     best = max(cand, key=lambda idx: fits[idx])
     return best
 
@@ -112,7 +115,7 @@ def mutate_pop(pop, mutation_rate=0.20, mutation_strength=0.4):
         for w in ind:
             if random.random() < mutation_rate:
                 w += random.gauss(0, mutation_strength)
-                w = max(-1, min(1, w))
+                # w = max(-1, min(1, w)) hard limit [-1, 1]
             new_ind.append(w)
         new_pop.append(new_ind)
     return new_pop
@@ -127,21 +130,22 @@ def simulate(G: int, N: int) -> List[Individual]:
         fits = fitness_parallel(pop)
         best_pop = max(range(len(fits)), key=lambda i: fits[i])
         print(f"best of the generation: {pop[best_pop]}")
-        new_pop = []
-        for _ in range(N):
+        new_pop = [pop[best_pop]]# Elitism: carry best individual to next gen
+        for _ in range(N-1):
             p1_idx = tournament_select(pop, fits)
             p2_idx = tournament_select(pop, fits)
             child = reproduce(pop[p1_idx], pop[p2_idx])
             new_pop.append(child)
-            
-        pop = mutate_pop(new_pop)
+        rate = max(0.05, 0.2 * (1 - generation/G))
+        strength = 0.4
+        pop = mutate_pop(new_pop, mutation_rate=rate, mutation_strength=strength)
     return pop
 
 
 def main():
     best_pop = simulate(20, 20)
     print("it finished")
-    print("best ind", best_pop[0])
+    print(best_pop)
 
 
 if __name__ == "__main__":
