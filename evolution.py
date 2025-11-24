@@ -21,10 +21,12 @@ from simulator import Simulator
 # 5. danger risk (low vs big advantage) -> to be included or excluded ? 
 
 
-type Individual = List[float]  #5 weights
+type Individual = List[List[float]]  #5 weights
 
 def random_individual() -> Individual:
-    return [random.uniform(-1, 1) for _ in range(5)]
+    weights = [random.uniform(-1, 1) for _ in range(5)]
+    temp = [random.uniform(0.5, 2.0) for _ in range(5)]
+    return [weights, temp]
     
 
 def init_population(N: int) -> List[Individual]:
@@ -38,13 +40,18 @@ def write_weights(weights, idx, suffix): # only works with "" and "_opp"
         
     return name
     
-def run_game(idx,w1, w2, N):
+def run_game(idx, ind1, ind2, N):
+    w1, t1 = ind1
+    w2, t2 = ind2
+    
     
     sim = Simulator(
         player_1="riv_agent",
         player_2="riv_agent",
         weights1=w1,
+        temp1=t1,
         weights2=w2,
+        temp2=t2,
         autoplay=False,
         display=False,
         display_delay=2, 
@@ -53,8 +60,6 @@ def run_game(idx,w1, w2, N):
     
     win_p1 = sim.run_autoplay()
     print(win_p1)
-    if win_p1 >= N -2:
-        print(f"Perfect win against REDA agent: {w1}")
     return idx, win_p1
     # f1_path = write_weights(w1,idx, "")
     # f2_path = write_weights(w2,idx, "opp")
@@ -74,12 +79,12 @@ def fitness_parallel(pop: List[Individual], opponents_per_ind=3) -> List[float]:
     fitness = [0.0] * len(pop)
     jobs = []
     with ProcessPoolExecutor() as executor:
-        for i, weights in enumerate(pop):
-            # opponents = random.sample(pop, opponents_per_ind)
-            # for opp in opponents:
-            #     jobs.append(executor.submit(run_game, i, weights, opp, 5))
+        for i, ind in enumerate(pop):
+            opponents = random.sample(pop, opponents_per_ind)
+            for opp in opponents:
+                jobs.append(executor.submit(run_game, i, ind, opp, 5))
                 
-            jobs.append(executor.submit(run_game, i, weights, [1,0,0,0,0], 10))
+            jobs.append(executor.submit(run_game, i, ind, [[1,0,0,0,0], [1,1,1,1,1]], 10))
             
         for future in as_completed(jobs):
             idx, result = future.result()
@@ -103,21 +108,31 @@ def tournament_select(pop, fits, k=3):
     return best
 
 def reproduce(p1, p2) -> Individual:
+    w1, t1 = p1
+    w2, t2 = p2
     point = random.randint(0, 4)
     
-    child = p1[:point] + p2[point:]
+    child_weights = w1[:point] + w2[point:]
+    child_temps = t1[:point] + t2[point:]
+    child = [child_weights, child_temps]
     return child
 
-def mutate_pop(pop, mutation_rate=0.20, mutation_strength=0.4):
+def mutate_pop(pop, mutation_rate=0.10, mutation_strength=0.4):
     new_pop = []
-    for ind in pop:
-        new_ind = []
-        for w in ind:
+    for weights, temps in pop:
+        new_w = []
+        for w in weights:
             if random.random() < mutation_rate:
                 w += random.gauss(0, mutation_strength)
                 # w = max(-1, min(1, w)) hard limit [-1, 1]
-            new_ind.append(w)
-        new_pop.append(new_ind)
+            new_w.append(w)
+        new_t = []
+        for t in temps:
+            if random.random() < mutation_rate:
+                t += random.gauss(0, mutation_strength/2)
+                # t = max(0.1, min(5, t)) hard limit [0.1, 5]
+            new_t.append(t)
+        new_pop.append([new_w, new_t])
     return new_pop
 
 

@@ -15,7 +15,7 @@ class RivAgent(Agent):
   add any helper functionalities needed for your agent
   """
 
-  def __init__(self, weights_list=None):
+  def __init__(self, weights_list=None, temp_list=None):
     super(RivAgent, self).__init__()
     self.name = "RivAgent"
     self.time_limit = 1.99  # max time per move
@@ -23,7 +23,10 @@ class RivAgent(Agent):
 
     if weights_list is None:
       weights_list = [0,0,0,0,0]
+    if temp_list is None:
+      temp_list = [1,1,1,1,1]
       
+    self.set_temperature(temp_list)
     self.set_weights(weights_list)
 
   def get_board_hash(self, chess_board):
@@ -33,6 +36,12 @@ class RivAgent(Agent):
     This is the base of the memoization implementation for this agent
     """
     return chess_board.tobytes()
+  def set_temperature(self, temps):
+    self.temp_piece = float(temps[0])
+    self.temp_edge = float(temps[1])
+    self.temp_adj = float(temps[2])
+    self.temp_cent = float(temps[3])
+    self.temp_risk = float(abs(temps[4]))
   
   def set_weights(self, weights):
     self.w_piece = float(weights[0])
@@ -156,6 +165,12 @@ class RivAgent(Agent):
       alpha = max(alpha, best_score)
     
     time_taken = time.time() - self.start_time
+    self.w_adj = self.w_adj * self.temp_adj
+    self.w_cent = self.w_cent * self.temp_cent
+    self.w_edge = self.w_edge * self.temp_edge
+    self.w_piece = self.w_piece * self.temp_piece
+    self.w_risk = self.w_risk * self.temp_risk
+    
     # print(f"My agent's turn took {time_taken:.3f} seconds.")
     
     return best_move

@@ -46,8 +46,10 @@ class Simulator:
     def __init__(self, 
     player_1="random_agent",
     player_2="random_agent",
-    weights1=[1,0,0,0,0],
+    weights1=[0,0,0,0,0],
+    temp1 = [1,1,1,1,1],
     weights2=[0,0,0,0,0],
+    temp2 = [1,1,1,1,1],
     board_path=None,
     board_roster_dir='boards/',
     display=False,
@@ -59,7 +61,9 @@ class Simulator:
         self.player_1 = player_1
         self.player_2 = player_2
         self.weights1 = weights1 
+        self.temp1 = temp1
         self.weights2 = weights2
+        self.temp2 = temp2
         self.board_path = board_path
         self.board_roster_dir = board_roster_dir
         self.display = display
@@ -93,14 +97,16 @@ class Simulator:
         if board_fpath is None:
             board_fpath = self.board_path
         if swap_players:
-            player_1, weights1, player_2, weights2 = self.player_2, self.weights2, self.player_1, self.weights1
+            player_1, weights1, temp1, player_2, weights2, temp2 = self.player_2, self.weights2, self.temp2, self.player_1, self.weights1, self.temp1
         else:
-            player_1, weights1, player_2, weights2 = self.player_1, self.weights1, self.player_2, self.weights2
+            player_1, weights1, temp1, player_2, weights2, temp2 = self.player_1, self.weights1, self.temp1, self.player_2, self.weights2, self.temp2
 
         self.world = World(
             player_1=player_1,
             weights1=weights1,
+            temp1=temp1,
             weights2=weights2,
+            temp2=temp2,
             player_2=player_2,
             board_fpath=board_fpath,
             display_ui=self.display,
