@@ -40,14 +40,19 @@ def write_weights(weights, idx, suffix): # only works with "" and "_opp"
         
     return name
     
-def run_game(idx, ind1, ind2, N):
-    w1, t1 = ind1
-    w2, t2 = ind2
+def run_game(idx, ind1, ind2, N, reda):
     
-    
+    if reda:
+        player2 = "reda_agent"
+        w1, t1 = ind1
+        w2, t2 = None, None
+    else:
+        player2 = "riv_agent"
+        w1, t1 = ind1
+        w2, t2 = ind2
     sim = Simulator(
         player_1="riv_agent",
-        player_2="riv_agent",
+        player_2=player2,
         weights1=w1,
         temp1=t1,
         weights2=w2,
@@ -60,6 +65,8 @@ def run_game(idx, ind1, ind2, N):
     
     win_p1 = sim.run_autoplay()
     print(win_p1)
+    if reda and win_p1 > 8:
+        print(f"Found a good one vs reda: {ind1}")
     return idx, win_p1
     # f1_path = write_weights(w1,idx, "")
     # f2_path = write_weights(w2,idx, "opp")
@@ -80,11 +87,11 @@ def fitness_parallel(pop: List[Individual], opponents_per_ind=3) -> List[float]:
     jobs = []
     with ProcessPoolExecutor() as executor:
         for i, ind in enumerate(pop):
-            opponents = random.sample(pop, opponents_per_ind)
-            for opp in opponents:
-                jobs.append(executor.submit(run_game, i, ind, opp, 5))
+            # opponents = random.sample(pop, opponents_per_ind)
+            # for opp in opponents:
+            #     jobs.append(executor.submit(run_game, i, ind, opp, 5))
                 
-            jobs.append(executor.submit(run_game, i, ind, [[1,0,0,0,0], [1,1,1,1,1]], 10))
+            jobs.append(executor.submit(run_game, i, ind, None, 10, True))
             
         for future in as_completed(jobs):
             idx, result = future.result()
@@ -124,7 +131,7 @@ def mutate_pop(pop, mutation_rate=0.10, mutation_strength=0.4):
         for w in weights:
             if random.random() < mutation_rate:
                 w += random.gauss(0, mutation_strength)
-                # w = max(-1, min(1, w)) hard limit [-1, 1]
+                w = max(-1, min(1, w)) # hard limit [-1, 1]
             new_w.append(w)
         new_t = []
         for t in temps:
@@ -158,7 +165,7 @@ def simulate(G: int, N: int) -> List[Individual]:
 
 
 def main():
-    best_pop = simulate(20, 20)
+    best_pop = simulate(40, 20)
     print("it finished")
     print(best_pop)
 

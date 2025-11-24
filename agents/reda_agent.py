@@ -127,7 +127,7 @@ class RedaAgent(Agent):
     for move in ordered_moves:
       # Check time limit before processing each move
       if time.time() - self.start_time >= self.time_limit:
-        print("Time limit reached, returning best move found so far")
+        # print("Time limit reached, returning best move found so far")
         break
       
       # Get score for this move
@@ -143,7 +143,7 @@ class RedaAgent(Agent):
       alpha = max(alpha, best_score)
     
     time_taken = time.time() - self.start_time
-    print(f"My agent's turn took {time_taken:.3f} seconds.")
+    # print(f"My agent's turn took {time_taken:.3f} seconds.")
     
     return best_move
 

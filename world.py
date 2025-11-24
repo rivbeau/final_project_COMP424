@@ -73,11 +73,13 @@ class World:
         logger.info(f"Registering p0 agent : {player_1}")
         if weights1:
             self.p0 = p0_agent(weights_list=weights1, temp_list=temp1)
-        # self.p0 = p0_agent()
+        else :
+            self.p0 = p0_agent()
         logger.info(f"Registering p1 agent : {player_2}")
         if weights2:
             self.p1 = p1_agent(weights_list=weights2, temp_list=temp2)
-        # self.p1 = p1_agent()
+        else : 
+            self.p1 = p1_agent()
 
         # check autoplay
         if autoplay:
