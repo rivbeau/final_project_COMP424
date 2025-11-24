@@ -101,6 +101,16 @@ class RivAgent(Agent):
     self.opponent = opponent
     self.start_time = start_time
     self.memo.clear()  # Reset memoization table for each move
+    self.w_piece = 1.415
+    self.w_edge = 1.234
+    self.w_adjblock = 0.876
+    self.w_centrality = 1.102
+    self.w_risk = 1.678
+    self.t_piece = 1.0
+    self.t_edge = 1.0
+    self.t_adjblock = 1.0
+    self.t_centrality = 1.0
+    self.t_risk = 1.0
     
     valid_moves = get_valid_moves(chess_board, player)
     
@@ -144,6 +154,7 @@ class RivAgent(Agent):
     
     time_taken = time.time() - self.start_time
     print(f"My agent's turn took {time_taken:.3f} seconds.")
+    self.w
     
     return best_move
 
