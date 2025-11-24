@@ -144,7 +144,7 @@ class RivAgent(Agent):
     best_score = -float('inf')
     alpha = -float('inf')
     beta = float('inf')
-    max_depth = 3 # Fixed max depth for the search
+    max_depth = 4 # Fixed max depth for the search
 
     for move in ordered_moves:
       # Check time limit before processing each move

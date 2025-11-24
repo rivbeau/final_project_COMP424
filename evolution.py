@@ -165,7 +165,7 @@ def simulate(G: int, N: int) -> List[Individual]:
 
 
 def main():
-    best_pop = simulate(40, 20)
+    best_pop = simulate(20, 20)
     print("it finished")
     print(best_pop)
 
