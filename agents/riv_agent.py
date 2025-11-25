@@ -2,7 +2,6 @@
 from agents.agent import Agent
 from store import register_agent
 import sys
-import json, os
 import numpy as np
 from copy import deepcopy
 import time
