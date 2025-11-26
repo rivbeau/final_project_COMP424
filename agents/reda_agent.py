@@ -17,7 +17,7 @@ class RedaAgent(Agent):
   def __init__(self):
     super(RedaAgent, self).__init__()
     self.name = "RedaAgent"
-    self.time_limit = 1.95  # max time per move
+    self.time_limit = 1.99  # max time per move
     self.memo = {} # memoization table
 
   def get_board_hash(self, chess_board):
