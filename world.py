@@ -210,6 +210,8 @@ class World:
 
         is_endgame, p0_score, p1_score = check_endgame(self.chess_board)
         is_endgame = is_endgame or self.move_count >= self.MOVE_COUNT_LIMIT
+        if self.move_count >= self.MOVE_COUNT_LIMIT:
+            logger.info(f"Move count limit of {self.MOVE_COUNT_LIMIT} reached. Ending game.")
 
         results = (is_endgame, p0_score, p1_score)
         self.results_cache = results

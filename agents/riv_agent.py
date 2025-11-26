@@ -101,16 +101,16 @@ class RivAgent(Agent):
     self.opponent = opponent
     self.start_time = start_time
     self.memo.clear()  # Reset memoization table for each move
-    self.w_piece = 0.853
-    self.w_edge = 0.909
+    self.w_piece = 1
+    self.w_edge = 0.182
     self.w_adjblock = -1
-    self.w_centrality = -.278
-    self.w_risk = 0.665
-    self.t_piece = 1.57
-    self.t_edge = 0.5157
-    self.t_adjblock = 1.09
-    self.t_centrality = 0.711
-    self.t_risk = 2.179
+    self.w_centrality = 0.2578
+    self.w_risk = 0.023
+    self.t_piece = 1.353
+    self.t_edge = 0.638
+    self.t_adjblock = 1.22
+    self.t_centrality = 1.29
+    self.t_risk = 1.4
     
     valid_moves = get_valid_moves(chess_board, player)
     
